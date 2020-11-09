@@ -32,7 +32,6 @@ Vagrant.configure("2") do |config|
     config.vm.define "jenkins" do |jenkins|
         jenkins.vm.box = IMAGE_NAME
         jenkins.vm.network "private_network", ip: "192.168.2.10"
-        jenkins.vm.network :forwarded_port, guest: 8080, host: 8080, auto_correct: true
         jenkins.vm.hostname = "jenkins"
         jenkins.vm.provision :shell, inline: "apt update && apt -y  purge python2.7-minimal && apt install -qy ansible"
         jenkins.vm.provision "file", source: "./setup/docker", destination: "$HOME/dockerfiles"
