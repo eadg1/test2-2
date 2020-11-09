@@ -1,6 +1,9 @@
 ---
 - hosts: all
   become: true
+  roles:
+    - docker
+    - docker-compose
   tasks:
   - name: Install for apt via  HTTPS
     apt:
@@ -16,30 +19,6 @@
       - software-properties-common
       
       
-  - name: Add an apt  gpg key for docker
-    apt_key:
-      url: https://download.docker.com/linux/ubuntu/gpg
-      state: present
-
-  - name: add repository for stable version
-    apt_repository:
-      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
-      state: present
-
-  - name: install docker and  deps
-    apt: 
-      name: "{{ packages }}"
-      state: present
-      update_cache: yes
-    vars:
-      packages:
-      - docker-ce 
-      - docker-ce-cli 
-      - containerd.io
-      - docker-compose
-    notify:
-      - docker status
-
   - name: Remove swapfile from /etc/fstab
     mount:
       name: "{{ item }}"
@@ -57,10 +36,3 @@
     file:
       path: /var/run/docker.sock
       mode: '0666'
-
-
-
-
-  handlers:
-    - name: docker status
-      service: name=docker state=started

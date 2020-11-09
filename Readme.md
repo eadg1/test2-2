@@ -5,6 +5,7 @@ Requirements:
   #### OS: 
    * Linux w/ kernel version 5.x or later
   #### Software:
+   * VirtualBox 6.1.14
    * vagrant v.2.2.10
    * git client (optionally)
   #### Harwdare minimum/recommended:
