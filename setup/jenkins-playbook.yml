@@ -1,0 +1,66 @@
+---
+- hosts: all
+  become: true
+  tasks:
+  - name: Install for apt via  HTTPS
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+      
+      
+  - name: Add an apt  gpg key for docker
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: add repository for stable version
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+      state: present
+
+  - name: install docker and  deps
+    apt: 
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - docker-ce 
+      - docker-ce-cli 
+      - containerd.io
+      - docker-compose
+    notify:
+      - docker status
+
+  - name: Remove swapfile from /etc/fstab
+    mount:
+      name: "{{ item }}"
+      fstype: swap
+      state: absent
+    with_items:
+      - swap
+      - none
+
+  - name: Disable swap
+    command: swapoff -a
+    when: ansible_swaptotal_mb > 0
+ 
+  - name: Give insecure permissions to an existing file
+    file:
+      path: /var/run/docker.sock
+      mode: '0666'
+
+
+
+
+  handlers:
+    - name: docker status
+      service: name=docker state=started
